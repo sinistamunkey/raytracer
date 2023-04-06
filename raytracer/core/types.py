@@ -1,10 +1,10 @@
 import math
+from dataclasses import dataclass
 from typing import Union
 
-import pydantic
 
-
-class Vector(pydantic.BaseModel):
+@dataclass
+class Vector:
     x: float
     y: float
     z: float
