@@ -1,6 +1,4 @@
-import pytest
-
-from raytracer.imaging.types import Canvas, Pixel
+from raytracer.core.types.imaging import Canvas, Pixel
 
 
 class TestPixel:
@@ -38,31 +36,20 @@ class TestPixel:
         actual = pixel * 2
         assert actual == expected
 
-    def test_multiply_by_another_pixel(self) -> None:
-        pixel_1 = Pixel(r=0, g=0, b=0)
-        pixel_2 = Pixel(r=4, g=12, b=33)
-        with pytest.raises(
-            AssertionError, match="Cannot multiply a pixel by another pixel"
-        ):
-            pixel_1 * pixel_2  # type: ignore
-
     def test_division(self) -> None:
         pixel_1 = Pixel(r=20, g=40, b=60)
         expected = Pixel(r=10, g=20, b=30)
         actual = pixel_1 / 2
         assert actual == expected
 
-    def test_division_by_another_pixel(self) -> None:
-        pixel_1 = Pixel(r=0, g=0, b=0)
-        pixel_2 = Pixel(r=4, g=12, b=33)
-        with pytest.raises(
-            AssertionError, match="Cannot divide a pixel by another pixel"
-        ):
-            pixel_1 / pixel_2  # type: ignore
-
     def test_rounds_floats(self) -> None:
         actual = Pixel(r=1.5, g=2.3, b=6.9)  # type: ignore
         expected = Pixel(r=2, g=2, b=7)
+        assert actual == expected
+
+    def test_from_hex(self) -> None:
+        actual = Pixel.from_hex("#FF0000")
+        expected = Pixel(r=255, g=0, b=0)
         assert actual == expected
 
 

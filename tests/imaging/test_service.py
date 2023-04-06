@@ -1,7 +1,7 @@
 import io
 
+from raytracer.core.types.imaging import Canvas
 from raytracer.imaging.service import ImageService
-from raytracer.imaging.types import Canvas
 
 
 class TestImageService:

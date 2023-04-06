@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 from typing import Any, Union
 
-from raytracer.imaging.constants import MAX_COLOUR, MIN_COLOUR
+from raytracer.core.constants import MAX_COLOUR, MIN_COLOUR
 
 
 @dataclass
 class Pixel:
-    r: int
-    g: int
-    b: int
+    r: int = 0
+    g: int = 0
+    b: int = 0
 
     def __add__(self, other: "Pixel") -> "Pixel":
         return Pixel(
@@ -31,7 +31,6 @@ class Pixel:
         super().__setattr__(name, value)
 
     def __mul__(self, other: Union[float, int]) -> "Pixel":
-        assert not isinstance(other, Pixel), "Cannot multiply a pixel by another pixel"
         return Pixel(
             r=int(self.r * other), g=int(self.g * other), b=int(self.b * other)
         )
@@ -40,15 +39,18 @@ class Pixel:
         return self.__mul__(other)
 
     def __truediv__(self, other: Union[float, int]) -> "Pixel":
-        assert not isinstance(other, Pixel), "Cannot divide a pixel by another pixel"
         return Pixel(
             r=int(self.r / other),
             g=int(self.g / other),
             b=int(self.b / other),
         )
 
-
-DEFAULT_PIXEL = Pixel(r=MIN_COLOUR, g=MIN_COLOUR, b=MIN_COLOUR)
+    @classmethod
+    def from_hex(cls, value: str) -> "Pixel":
+        red = int(value[1:3], 16)
+        green = int(value[3:5], 16)
+        blue = int(value[5:7], 16)
+        return cls(r=red, g=green, b=blue)
 
 
 @dataclass
@@ -68,3 +70,6 @@ class Canvas:
 
     def paint(self, x: int, y: int, pixel: Pixel) -> None:
         self._pixels[y][x] = pixel
+
+
+DEFAULT_PIXEL = Pixel(r=MIN_COLOUR, g=MIN_COLOUR, b=MIN_COLOUR)
