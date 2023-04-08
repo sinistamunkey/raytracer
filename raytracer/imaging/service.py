@@ -1,7 +1,7 @@
 from typing import TextIO
 
-from raytracer.imaging.constants import MAX_COLOUR
-from raytracer.imaging.types import Canvas
+from raytracer.core.constants import MAX_COLOUR
+from raytracer.core.types.imaging import Canvas
 
 
 class ImageService:
