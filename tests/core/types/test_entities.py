@@ -2,9 +2,19 @@ from typing import Optional
 
 import pytest
 
-from raytracer.core.types.entities import Ray, Sphere
+from raytracer.core.types.entities import Material, Primitive, Ray, Sphere
 from raytracer.core.types.geometry import Point
 from raytracer.core.types.imaging import Colour
+
+
+class Sidebar(Primitive):
+    def intersects(self, ray: "Ray") -> Optional[float]:
+        return None
+
+
+class TestPrimitive:
+    def test_normal(self) -> None:
+        pass
 
 
 class TestSphere:
@@ -13,13 +23,21 @@ class TestSphere:
         [
             pytest.param(
                 Ray(origin=Point(0, 0, -1), direction=Point(0, 0, 6)),
-                Sphere(centre=Point(0, 0, 0), material=Colour(255, 0, 0), radius=0.5),
+                Sphere(
+                    centre=Point(0, 0, 0),
+                    material=Material(colour=Colour(255, 0, 0)),
+                    radius=0.5,
+                ),
                 0.5,
                 id="Ray intersects with sphere",
             ),
             pytest.param(
                 Ray(origin=Point(20, 20, -1), direction=Point(20, 20, 6)),
-                Sphere(centre=Point(0, 0, 0), material=Colour(255, 0, 0), radius=0.5),
+                Sphere(
+                    centre=Point(0, 0, 0),
+                    material=Material(colour=Colour(255, 0, 0)),
+                    radius=0.5,
+                ),
                 None,
                 id="Ray does not intersect with sphere",
             ),
@@ -29,6 +47,15 @@ class TestSphere:
         self, ray: Ray, sphere: Sphere, expected: Optional[float]
     ) -> None:
         actual = sphere.intersects(ray=ray)
+        assert actual == expected
+
+    def test_normal(self) -> None:
+        shape = Sidebar(
+            centre=Point(0, 0, 0),
+            material=Material(colour=Colour(), ambient=0.0, diffuse=0.0, specular=0.0),
+        )
+        actual = shape.normal(Point(1, 2, 3))
+        expected = Point(0.2672612419124244, 0.5345224838248488, 0.8017837257372732)
         assert actual == expected
 
 

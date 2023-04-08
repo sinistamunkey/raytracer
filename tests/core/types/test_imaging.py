@@ -36,6 +36,12 @@ class TestColour:
         actual = colour * 2
         assert actual == expected
 
+    def test_rmultiply(self) -> None:
+        colour = Colour(r=1, g=2, b=3)
+        expected = Colour(r=2, g=4, b=6)
+        actual = 2 * colour
+        assert actual == expected
+
     def test_division(self) -> None:
         colour_1 = Colour(r=20, g=40, b=60)
         expected = Colour(r=10, g=20, b=30)

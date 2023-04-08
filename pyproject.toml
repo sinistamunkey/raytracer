@@ -19,6 +19,17 @@ no_implicit_optional = true
 warn_redundant_casts = true
 warn_return_any = true
 
+[tool.coverage.run]
+omit = [
+    "raytracer/core/config.py",
+    "raytracer/cli.py",
+    "raytracer/**/cli/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
+
 [tool.poetry]
 name = "raytracer"
 version = "0.1.0"
@@ -41,6 +52,7 @@ mypy = "^1.1.1"
 pytest-cov = "^4.0.0"
 ipython = "^8.12.0"
 ipdb = "^0.13.13"
+pytest-mock = "^3.10.0"
 
 [tool.poetry.scripts]
 raytracer = "raytracer.cli:cli"

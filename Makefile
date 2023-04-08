@@ -14,4 +14,4 @@ lint:
 
 test:
 	@echo "Testing"
-	pytest -x --cov=tests --cov=raytracer
+	pytest --cov=raytracer tests

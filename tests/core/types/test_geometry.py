@@ -49,6 +49,12 @@ class TestVector:
         actual = vector * 3
         assert actual == expected
 
+    def test_rmultiply(self, vector_cls: Type[BV]) -> None:
+        vector = vector_cls(x=1.0, y=-2.0, z=-2.0)
+        expected = vector_cls(x=3.0, y=-6.0, z=-6.0)
+        actual = 3 * vector
+        assert actual == expected
+
     def test_division(self, vector_cls: Type[BV]) -> None:
         vector = vector_cls(x=1.0, y=-2.0, z=-2.0)
         expected = vector_cls(x=0.5, y=-1.0, z=-1.0)
