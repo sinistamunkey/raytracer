@@ -6,7 +6,7 @@ Following: https://www.youtube.com/playlist?list=PL8ENypDVcs3H-TxOXOzwDyCm5f2fGX
 
 ## Getting started
 
-You will need to install [Poetry](https://python-poetry.org/) and ideally [PyEnv](https://github.com/pyenv/pyenv)
+You will need to install [Poetry](https://python-poetry.org/).
 
 ### MacOS/ Linux
 
@@ -27,12 +27,14 @@ At present this only supports rendering a single sphere to a canvas using the PP
 
 ### MacOS/ Linux
 ```shell
-poetry run raytracer imaging ball
+poetry run raytracer rendering render-scene
 ```
 
 ### Windows
 ```powershell
-py -m poetry run raytracer imaging ball
+py -m poetry run raytracer rendering render-scene
 ```
 
-The above command will create a new file in the `out` directory.
+The above command will create a new file in the `out` directory.  You can specify scenes defined in the `scenes` directory.
+
+![scene_1](scene_1.jpeg)

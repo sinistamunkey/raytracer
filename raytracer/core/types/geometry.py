@@ -2,9 +2,11 @@ import math
 from dataclasses import dataclass
 from typing import Self, Union
 
+from raytracer.core.types.base import Loadable
+
 
 @dataclass
-class BaseVector:
+class BaseVector(Loadable):
     x: float
     y: float
     z: float
@@ -41,6 +43,10 @@ class BaseVector:
             y=self.y / other,
             z=self.z / other,
         )
+
+    @classmethod
+    def from_object(cls, data: dict) -> Self:
+        return cls(x=data["x"], y=data["y"], z=data["z"])
 
 
 @dataclass

@@ -1,0 +1,87 @@
+{
+    "camera": {
+        "x": 0,
+        "y": -0.35,
+        "z": -1
+    },
+    "objects": [{
+        "type": "Sphere",
+        "attributes": {
+            "name": "Blue ball",
+            "centre": {
+                "x": 0.75,
+                "y": -0.1,
+                "z": 1
+            },
+            "radius": 0.6,
+            "material": {
+                "type": "Material",
+                "attributes": {
+                    "colour": "#0000FF",
+                    "ambient": 0.05,
+                    "diffuse": 1.0,
+                    "specular": 1.0,
+                    "reflection": 0.6
+                }
+            }
+        }
+    }, {
+        "type": "Sphere",
+        "attributes": {
+            "name": "Red ball",
+            "centre": {
+                "x": -0.75,
+                "y": -0.1,
+                "z": 2.25
+            },
+            "radius": 0.6,
+            "material": {
+                "type": "Material",
+                "attributes": {
+                    "colour": "#FF0000",
+                    "ambient": 0.05,
+                    "diffuse": 1.0,
+                    "specular": 1.0,
+                    "reflection": 0.6
+                }
+            }
+        }
+    }, {
+        "type": "Sphere",
+        "attributes": {
+            "name": "Ground",
+            "centre": {
+                "x": 0,
+                "y": 10000.5,
+                "z": 1
+            },
+            "radius": 10000.0,
+            "material": {
+                "type": "ChequeredMaterial",
+                "attributes": {
+                    "colour_1": "#420500",
+                    "colour_2": "#e6b87d",
+                    "ambient": 0.2,
+                    "diffuse": 1.0,
+                    "specular": 1.0,
+                    "reflection": 0.2
+                }
+            }
+        }
+    }],
+    "lights": [{
+        "position": {
+            "x": 1.5,
+            "y": -0.5,
+            "z": -10.0
+        },
+        "colour": "#FFFFFF"
+    }, {
+        "position": {
+            "x": -0.5,
+            "y": -10.5,
+            "z": 0.0
+        },
+        "colour": "#E6E6E6"
+    }]
+}

@@ -27,6 +27,7 @@ def material() -> Material:
 @pytest.fixture
 def sphere(material: Material) -> Sphere:
     return Sphere(
+        name="Sphere 1",
         centre=Point(0, 0, 0),
         material=material,
         radius=0.5,

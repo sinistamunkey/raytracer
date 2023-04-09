@@ -1,7 +1,15 @@
+import enum
 from dataclasses import dataclass
 from typing import Any, Union
 
 from raytracer.core.constants import MAX_COLOUR, MIN_COLOUR
+
+
+class ImageFormat(enum.Enum):
+    BMP = ".bmp"
+    JPEG = ".jpeg"
+    PNG = ".png"
+    PPM = ".ppm"
 
 
 @dataclass

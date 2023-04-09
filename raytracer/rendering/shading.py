@@ -1,4 +1,4 @@
-from raytracer.core.types.entities import Light, Material, Primitive, Ray, Scene
+from raytracer.core.types.entities import BaseMaterial, Light, Primitive, Ray, Scene
 from raytracer.core.types.geometry import Point
 from raytracer.core.types.imaging import Colour
 
@@ -35,7 +35,7 @@ class Shader:
     def _diffuse(
         self,
         light: Light,
-        material: Material,
+        material: BaseMaterial,
         hit_pos: Point,
         normal: Point,
     ) -> Colour:
@@ -55,7 +55,7 @@ class Shader:
     def _specular(
         self,
         light: Light,
-        material: Material,
+        material: BaseMaterial,
         normal: Point,
         hit_pos: Point,
         to_cam: Point,

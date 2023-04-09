@@ -1,8 +1,8 @@
 import math
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Optional, Sequence
+from dataclasses import dataclass, field
+from typing import Optional, Self, Sequence
 
+from raytracer.core.types.base import Loadable
 from raytracer.core.types.geometry import Point
 from raytracer.core.types.imaging import Colour
 from raytracer.rendering.constants import SCENE_ABSOLUTE_BOTTOM, SCENE_ABSOLUTE_TOP
@@ -51,35 +51,102 @@ class Scene:
             (scene_bottom - scene_top) / (self.height - 1),
         )
 
+    @classmethod
+    def from_object(cls, data: dict, width: int, height: int) -> "Scene":
+        return Scene(
+            camera=Point.from_object(data["camera"]),
+            objects=[Sphere.from_object(obj_data) for obj_data in data["objects"]],
+            lights=[Light.from_object(light_data) for light_data in data["lights"]],
+            width=width,
+            height=height,
+        )
+
 
 @dataclass
-class Light:
+class Light(Loadable):
     position: Point
     colour: Colour
 
+    @classmethod
+    def from_object(cls, data: dict) -> "Light":
+        return cls(
+            position=Point.from_object(data["position"]),
+            colour=Colour.from_hex(data["colour"]),
+        )
+
 
 @dataclass
-class Material:
-    colour: Colour
-    ambient: float = 0.0
-    diffuse: float = 0.0
-    specular: float = 0.0
+class BaseMaterial(Loadable):
+    ambient: float = 0.05
+    diffuse: float = 1.0
+    specular: float = 1.0
+    reflection: float = 0.5
+
+    def colour_at(self, position: Point) -> Colour:
+        raise NotImplementedError  # pragma: nocover
+
+    @classmethod
+    def from_object(cls, data: dict) -> Self:
+        raise NotImplementedError  # pragma: nocover
+
+
+@dataclass
+class Material(BaseMaterial):
+    colour: Colour = field(default_factory=Colour)
 
     def colour_at(self, position: Point) -> Colour:
         return self.colour
 
+    @classmethod
+    def from_object(cls, data: dict) -> "Material":
+        return cls(
+            colour=Colour.from_hex(data["attributes"]["colour"]),
+            ambient=data["attributes"]["ambient"],
+            diffuse=data["attributes"]["diffuse"],
+            specular=data["attributes"]["specular"],
+            reflection=data["attributes"]["reflection"],
+        )
+
 
 @dataclass
-class Primitive(ABC):
-    centre: Point
-    material: "Material"
+class ChequeredMaterial(BaseMaterial):
+    colour_1: Colour = field(default_factory=Colour)
+    colour_2: Colour = field(default_factory=Colour)
 
-    @abstractmethod
+    def colour_at(self, position: Point) -> Colour:
+        size = 1.0  # smaller number is larger square
+        delta = 5.0
+        if int((position.x + delta) * size) % 2 == int(position.z * size) % 2:
+            return self.colour_2
+        return self.colour_1
+
+    @classmethod
+    def from_object(cls, data: dict) -> "ChequeredMaterial":
+        return cls(
+            ambient=data["attributes"]["ambient"],
+            diffuse=data["attributes"]["diffuse"],
+            specular=data["attributes"]["specular"],
+            reflection=data["attributes"]["reflection"],
+            colour_1=Colour.from_hex(data["attributes"]["colour_1"]),
+            colour_2=Colour.from_hex(data["attributes"]["colour_2"]),
+        )
+
+
+@dataclass
+class Primitive(Loadable):
+    name: str
+    centre: Point
+    material: "BaseMaterial"
+
     def intersects(self, ray: "Ray") -> Optional[float]:
-        pass  # pragma: nocover
+        raise NotImplementedError  # pragma: nocover
 
     def normal(self, surface_point: Point) -> Point:
         return (surface_point - self.centre).normalize()
+
+    @classmethod
+    def from_object(cls, data: dict) -> Self:
+        raise NotImplementedError  # pragma: nocover
 
 
 @dataclass
@@ -97,3 +164,21 @@ class Sphere(Primitive):
             if distance > 0:
                 return distance
         return None
+
+    @classmethod
+    def from_object(cls, data: dict) -> "Sphere":
+        import sys
+
+        material_name = data["attributes"]["material"]["type"]
+        try:
+            material_cls = getattr(sys.modules[__name__], material_name)
+        except AttributeError:
+            raise ValueError(f"'{material_name}' could not be found")
+        if not issubclass(material_cls, BaseMaterial):
+            raise ValueError(f"'{material_name}' is not a valid material")
+        return cls(
+            name=data["attributes"]["name"],
+            centre=Point.from_object(data["attributes"]["centre"]),
+            radius=data["attributes"]["radius"],
+            material=material_cls.from_object(data["attributes"]["material"]),
+        )
