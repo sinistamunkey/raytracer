@@ -1,5 +1,5 @@
 from typing import Optional
-from unittest.mock import Mock, call
+from unittest.mock import Mock
 
 import pytest
 from pytest_mock import MockerFixture
@@ -8,11 +8,17 @@ from raytracer.core.types.entities import Light, Material, Primitive, Ray, Scene
 from raytracer.core.types.geometry import Point
 from raytracer.core.types.imaging import Colour
 from raytracer.rendering.engine import RenderEngine
+from raytracer.rendering.shading import Shader
+
+
+class FakeShader(Shader):
+    def shade(self, *args, **kwargs):
+        return Colour(255, 255, 255)
 
 
 @pytest.fixture
-def shader() -> Mock:
-    return Mock()
+def shader() -> FakeShader:
+    return FakeShader()
 
 
 @pytest.fixture
@@ -35,7 +41,7 @@ def scene() -> Scene:
 
 class TestRenderEngine:
     @pytest.fixture
-    def engine(self, shader: Mock) -> RenderEngine:
+    def engine(self, shader: FakeShader) -> RenderEngine:
         return RenderEngine(shader=shader)
 
     def test_render(
@@ -44,39 +50,42 @@ class TestRenderEngine:
         """
         GIVEN a scene
         WHEN calling render
-        THEN fill the canvas with rendered pixels
+        THEN yield an iterable containing indexes and row
         """
         # GIVEN
-        render_pixel = Mock(return_value=Colour(r=255, g=255, b=255))
-        mocker.patch.object(engine, "_render_pixel", render_pixel)
-        expected = 3060  # If every pixel is white - this should be the colour total
+        expected = [
+            (0, [Colour(r=0, g=0, b=0), Colour(r=0, g=0, b=0)]),
+            (1, [Colour(r=0, g=0, b=0), Colour(r=0, g=0, b=0)]),
+        ]
 
         # WHEN
-        canvas = engine.render(scene=scene)
+        actual = list(engine.render(scene=scene))
 
         # THEN
-        pixels = [pixel for row in canvas.pixels for pixel in row]
-        actual = sum([pixel.r + pixel.g + pixel.b for pixel in pixels])
         assert actual == expected
 
-    def test_render_updates_progress(
-        self, scene: Scene, engine: RenderEngine, mocker: MockerFixture
-    ) -> None:
+    def test_render_row(self, scene: Scene, engine: RenderEngine) -> None:
         """
         GIVEN a scene
-        WHEN calling render
-        THEN fill the canvas with rendered pixels
+        AND has a row of 2 columns
+        WHEN calling render row with the first row
+        THEN return a tuple of 0 and 10 colours
         """
         # GIVEN
-        update_func = Mock()
-        render_pixel = Mock(return_value=Colour(r=255, g=255, b=255))
-        mocker.patch.object(engine, "_render_pixel", render_pixel)
+        expected = (0, [Colour(r=0, g=0, b=0), Colour(r=255, g=255, b=255)])
+        params = (
+            scene,
+            0,
+            0,
+            1,
+            1,
+        )
 
         # WHEN
-        engine.render(scene=scene, update_func=update_func)
+        actual = engine._render_row(params)
 
         # THEN
-        assert update_func.mock_calls == [call(1), call(1), call(1), call(1)]
+        assert actual == expected
 
     @pytest.mark.parametrize(
         "find_nearest,expected",
@@ -110,7 +119,6 @@ class TestRenderEngine:
         self,
         scene: Scene,
         engine: RenderEngine,
-        shader: Mock,
         mocker: MockerFixture,
         find_nearest: Mock,
         expected: Colour,
@@ -122,7 +130,6 @@ class TestRenderEngine:
         THEN colour the pixel if the ray intersects with an object
         """
         # GIVEN
-        shader.shade.return_value = Colour(255, 255, 255)
         mocker.patch.object(engine, "_find_nearest", find_nearest)
 
         # WHEN

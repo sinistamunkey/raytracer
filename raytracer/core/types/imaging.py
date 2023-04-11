@@ -79,5 +79,8 @@ class Canvas:
     def paint(self, x: int, y: int, pixel: Colour) -> None:
         self._pixels[y][x] = pixel
 
+    def set_row(self, index: int, row: list[Colour]) -> None:
+        self._pixels[index] = row
+
 
 DEFAULT_PIXEL = Colour(r=MIN_COLOUR, g=MIN_COLOUR, b=MIN_COLOUR)

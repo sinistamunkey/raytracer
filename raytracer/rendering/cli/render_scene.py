@@ -7,6 +7,7 @@ import click
 
 from raytracer.core import config
 from raytracer.core.types.entities import Scene
+from raytracer.core.types.imaging import Canvas
 from raytracer.imaging.service import ImageService
 from raytracer.rendering.engine import RenderEngine
 from raytracer.rendering.shading import Shader
@@ -45,16 +46,28 @@ from raytracer.rendering.shading import Shader
     type=str,
     help="The name of a scene in the scenes directory (excluding extension) to use.",
 )
+@click.option(
+    "-p",
+    "--processes",
+    default=4,
+    required=False,
+    type=int,
+    help="The number of concurrent processes to use when rendering the scene.",
+)
 def render_scene(
-    width: int = 320,
-    height: int = 200,
-    scene_name: str = "scene_1",
+    width: int,
+    height: int,
+    scene_name: str,
+    processes: int,
     filename: Optional[str] = None,
 ) -> None:
     scene = _load_scene_from_file(scene_name=scene_name, width=width, height=height)
     engine = RenderEngine(shader=Shader())
-    with click.progressbar(length=width * height, label="Rendering scene") as bar:
-        canvas = engine.render(scene=scene, update_func=bar.update)
+    canvas = Canvas(width=width, height=height)
+    with click.progressbar(length=height, label="Rendering scene") as bar:
+        for index, row in engine.render(scene=scene, processes=processes):
+            canvas.set_row(index=index, row=row)
+            bar.update(1)
 
     filename = filename or f"{uuid4()}.ppm"
     filepath = os.path.join(config.OUT_DIR, filename)
@@ -62,7 +75,7 @@ def render_scene(
         saved_file = ImageService().save(
             canvas=canvas, filepath=filepath, update_func=bar.update
         )
-    click.echo(f"Generated files: {saved_file}")
+    click.echo(f"Generated file: {saved_file}")
 
 
 def _load_scene_from_file(scene_name: str, width: int, height: int) -> Scene:

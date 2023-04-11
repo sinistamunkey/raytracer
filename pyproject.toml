@@ -8,7 +8,7 @@ skip_glob = "venv"
 known_first_party = ["raytracer", "tests"]
 
 [tool.mypy]
-exclude = "venv/"
+exclude = ".venv/"
 check_untyped_defs = true
 disallow_incomplete_defs = true
 warn_unused_configs = true

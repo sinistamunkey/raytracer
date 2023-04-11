@@ -1,8 +1,9 @@
-from typing import Callable, Optional
+import multiprocessing as mp
+from typing import Iterable, Optional
 
 from raytracer.core.types.entities import Primitive, Ray, Scene
 from raytracer.core.types.geometry import Point
-from raytracer.core.types.imaging import Canvas, Colour
+from raytracer.core.types.imaging import Colour
 from raytracer.rendering.constants import SCENE_ABSOLUTE_TOP
 from raytracer.rendering.shading import Shader
 
@@ -17,27 +18,35 @@ class RenderEngine:
         self.max_depth = max_depth
 
     def render(
-        self, scene: Scene, update_func: Optional[Callable[[int], None]] = None
-    ) -> Canvas:
-        scene_width = scene.width
-        scene_height = scene.height
+        self, scene: Scene, processes: int = 4
+    ) -> Iterable[tuple[int, list[Colour]]]:
         scene_top, _ = scene.get_aspect_boundries()
         horizontal_step, vertical_step = scene.get_horizontal_and_vertical_steps()
 
-        camera = scene.camera
-        canvas = Canvas(width=scene_width, height=scene_height)
+        params = [
+            (
+                scene,
+                scene_y,
+                scene_top,
+                vertical_step,
+                horizontal_step,
+            )
+            for scene_y in range(scene.height)
+        ]
+        with mp.Pool(processes=processes) as pool:
+            yield from pool.imap(self._render_row, params)
 
-        for scene_y in range(scene_height):
-            y = scene_top + scene_y * vertical_step
-            for scene_x in range(scene_width):
-                x = SCENE_ABSOLUTE_TOP + scene_x * horizontal_step
-                ray = Ray(camera, Point(x=x, y=y, z=0) - camera)
-                canvas.paint(
-                    x=scene_x, y=scene_y, pixel=self._render_pixel(ray=ray, scene=scene)
-                )
-                if update_func is not None:
-                    update_func(1)
-        return canvas
+    def _render_row(
+        self, params: tuple[Scene, int, float, float, float]
+    ) -> tuple[int, list[Colour]]:
+        scene, scene_y, scene_top, vertical_step, horizontal_step = params
+        y = scene_top + scene_y * vertical_step
+        row = []
+        for scene_x in range(scene.width):
+            x = SCENE_ABSOLUTE_TOP + scene_x * horizontal_step
+            ray = Ray(scene.camera, Point(x=x, y=y, z=0) - scene.camera)
+            row.append(self._render_pixel(ray=ray, scene=scene))
+        return (scene_y, row)
 
     def _render_pixel(self, ray: Ray, scene: Scene, depth: int = 0) -> Colour:
         pixel = Colour(r=0, g=0, b=0)

@@ -9,7 +9,7 @@ import pytest
 from click.testing import CliRunner
 
 from raytracer.core.types.entities import Scene
-from raytracer.core.types.imaging import Canvas
+from raytracer.core.types.imaging import Canvas, Colour
 from raytracer.rendering.cli.render_scene import render_scene
 
 
@@ -37,12 +37,14 @@ def scene_file(temp_directory: str, scene_data: dict) -> str:
 
 @pytest.fixture
 def canvas() -> Canvas:
-    return Canvas(width=10, height=10)
+    canvas = Canvas(width=1, height=1)
+    canvas._pixels = [Colour(255, 255, 255)]
+    return canvas
 
 
 @pytest.fixture(autouse=True)
 def render_engine(canvas: Canvas) -> Iterator[Mock]:
-    mock_engine = Mock(render=Mock(return_value=canvas))
+    mock_engine = Mock(render=Mock(return_value=iter([(0, Colour(255, 255, 255))])))
     with patch(
         "raytracer.rendering.cli.render_scene.RenderEngine", return_value=mock_engine
     ):
@@ -69,8 +71,8 @@ class TestRenderScene:
         scene_data: dict,
         canvas: Canvas,
     ) -> None:
-        width = 320
-        height = 240
+        width = 1
+        height = 1
         scene = Scene.from_object(data=scene_data, width=width, height=height)
         manager = Mock()
         manager.attach_mock(render_engine, "render_engine")
@@ -93,7 +95,7 @@ class TestRenderScene:
         assert result.exit_code == 0
         manager.assert_has_calls(
             [
-                call.render_engine.render(scene=scene, update_func=mock.ANY),
+                call.render_engine.render(scene=scene, processes=4),
                 call.image_service.save(
                     canvas=canvas,
                     filepath=os.path.join(config.OUT_DIR, "testing.ppm"),
