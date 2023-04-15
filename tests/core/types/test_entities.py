@@ -63,7 +63,9 @@ class TestSphere:
         shape = Sidebar(
             name="Sidebar! Sidebar!",
             centre=Point(0, 0, 0),
-            material=Material(colour=Colour(), ambient=0.0, diffuse=0.0, specular=0.0),
+            material=Material(
+                colour=Colour(0, 0, 0), ambient=0.0, diffuse=0.0, specular=0.0
+            ),
         )
         actual = shape.normal(Point(1, 2, 3))
         expected = Point(0.2672612419124244, 0.5345224838248488, 0.8017837257372732)

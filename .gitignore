@@ -110,3 +110,6 @@ venv.bak/
 
 # OS specific files
 .DS_Store
+
+# Profiling
+*.prof

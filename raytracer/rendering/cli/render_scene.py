@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Optional
+from typing import Callable, Optional
 from uuid import uuid4
 
 import click
@@ -61,13 +61,14 @@ def render_scene(
     processes: int,
     filename: Optional[str] = None,
 ) -> None:
-    scene = _load_scene_from_file(scene_name=scene_name, width=width, height=height)
-    engine = RenderEngine(shader=Shader())
-    canvas = Canvas(width=width, height=height)
     with click.progressbar(length=height, label="Rendering scene") as bar:
-        for index, row in engine.render(scene=scene, processes=processes):
-            canvas.set_row(index=index, row=row)
-            bar.update(1)
+        canvas = _render_scene(
+            scene_name=scene_name,
+            width=width,
+            height=height,
+            processes=processes,
+            update_func=bar.update,
+        )
 
     filename = filename or f"{uuid4()}.ppm"
     filepath = os.path.join(config.OUT_DIR, filename)
@@ -80,8 +81,24 @@ def render_scene(
 
 def _load_scene_from_file(scene_name: str, width: int, height: int) -> Scene:
     scene_file = os.path.join(config.SCENE_DIR, f"{scene_name}.json")
-
     with open(scene_file, "r") as f:
         data = json.load(f)
 
     return Scene.from_object(data=data, width=width, height=height)
+
+
+def _render_scene(
+    scene_name: str = "scene_1",
+    width: int = 320,
+    height: int = 240,
+    processes: int = 4,
+    update_func: Optional[Callable[[int], None]] = None,
+) -> Canvas:
+    scene = _load_scene_from_file(scene_name=scene_name, width=width, height=height)
+    engine = RenderEngine(Shader())
+    canvas = Canvas(width=width, height=height)
+    for index, row in engine.render(scene=scene, processes=processes):
+        canvas.set_row(index=index, row=row)
+        if update_func:
+            update_func(1)
+    return canvas

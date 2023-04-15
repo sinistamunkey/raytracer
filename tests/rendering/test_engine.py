@@ -26,7 +26,7 @@ def scene() -> Scene:
     return Scene(
         width=2,
         height=2,
-        camera=Point(x=0, y=0, z=-1),
+        camera=Point(0, 0, -1),
         objects=[
             Sphere(
                 name="Sphere 1",
@@ -35,7 +35,7 @@ def scene() -> Scene:
                 radius=0.5,
             )
         ],
-        lights=[Light(position=Point(0, 0, 0), colour=Colour())],
+        lights=[Light(position=Point(0, 0, 0), colour=Colour(0, 0, 0))],
     )
 
 
@@ -54,8 +54,8 @@ class TestRenderEngine:
         """
         # GIVEN
         expected = [
-            (0, [Colour(r=0, g=0, b=0), Colour(r=0, g=0, b=0)]),
-            (1, [Colour(r=0, g=0, b=0), Colour(r=0, g=0, b=0)]),
+            (0, [Colour(0, 0, 0), Colour(0, 0, 0)]),
+            (1, [Colour(0, 0, 0), Colour(0, 0, 0)]),
         ]
 
         # WHEN
@@ -72,7 +72,7 @@ class TestRenderEngine:
         THEN return a tuple of 0 and 10 colours
         """
         # GIVEN
-        expected = (0, [Colour(r=0, g=0, b=0), Colour(r=255, g=255, b=255)])
+        expected = (0, [Colour(0, 0, 0), Colour(255, 255, 255)])
         params = (
             scene,
             0,
@@ -144,13 +144,13 @@ class TestRenderEngine:
         "ray,expected_distance,expected_object",
         [
             pytest.param(
-                Ray(origin=Point(x=0, y=0, z=-1), direction=Point(0, 0, 1)),
+                Ray(origin=Point(0, 0, -1), direction=Point(0, 0, 1)),
                 0.5,
                 Sphere(
                     name="Sphere 1",
-                    centre=Point(x=0, y=0, z=0),
+                    centre=Point(0, 0, 0),
                     material=Material(
-                        colour=Colour(r=0, g=0, b=0),
+                        colour=Colour(0, 0, 0),
                         ambient=0.05,
                         diffuse=1.0,
                         specular=1.0,
@@ -161,7 +161,7 @@ class TestRenderEngine:
                 id="Hits object",
             ),
             pytest.param(
-                Ray(origin=Point(x=0, y=0, z=1), direction=Point(0, 0, 1)),
+                Ray(origin=Point(0, 0, 1), direction=Point(0, 0, 1)),
                 None,
                 None,
                 id="Misses object",
