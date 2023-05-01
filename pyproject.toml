@@ -62,7 +62,7 @@ ipdb = "^0.13.13"
 pytest-mock = "^3.10.0"
 types-pillow = "^9.4.0.19"
 snakeviz = "^2.1.1"
-cythonbuilder = "^0.1.15"
+cythonbuilder = "^0.1.16"
 
 [tool.poetry.scripts]
 raytracer = "raytracer.cli:cli"
