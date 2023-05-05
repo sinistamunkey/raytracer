@@ -9,6 +9,7 @@ concurrency:
 
 jobs:
   checks:
+    name: python testing and linting    
     runs-on: ubuntu-latest
     strategy:
       matrix:
