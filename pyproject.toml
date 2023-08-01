@@ -60,7 +60,7 @@ pytest-cov = "^4.1.0"
 ipython = "^8.14.0"
 ipdb = "^0.13.13"
 pytest-mock = "^3.10.0"
-types-pillow = "^9.5.0.5"
+types-pillow = "^10.0.0.2"
 snakeviz = "^2.2.0"
 cythonbuilder = "^0.1.20"
 
